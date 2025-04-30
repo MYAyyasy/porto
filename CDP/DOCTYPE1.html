@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoring Kondisi Tanaman</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        
+        h1 {
+            color: #2c8a56;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .plant-image {
+            text-align: center;
+            background-color: #f0f9f0;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .plant-image img {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 5px;
+        }
+        
+        .indicators {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .indicator {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+        
+        .indicator h3 {
+            margin-top: 0;
+            color: #2c8a56;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 8px;
+        }
+        
+        .progress-container {
+            margin-top: 10px;
+        }
+        
+        .progress-bar {
+            height: 25px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background-color: #4caf50;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .progress-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-weight: bold;
+            text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+        }
+        
+        .status {
+            font-weight: bold;
+            font-size: 18px;
+            margin-top: 5px;
+        }
+        
+        .warning {
+            color: #ff9800;
+        }
+        
+        .danger {
+            color: #f44336;
+        }
+        
+        .good {
+            color: #4caf50;
+        }
+        
+        .buttons {
+            margin-top: 30px;
+            text-align: center;
+        }
+        
+        .btn {
+            background-color: #2c8a56;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: #1f6a3d;
+        }
+        
+        .tank-indicators {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .tank-indicator {
+            text-align: center;
+        }
+        
+        .tank-progress {
+            height: 20px;
+            margin-top: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Monitoring Kondisi Tanaman</h1>
+        
+        <div class="dashboard">
+            <div class="plant-image">
+                <h3>Foto Tanaman</h3>
+                <img id="plantPhoto" src="image.png" alt="Foto Tanaman">
+            </div>
+            
+            <div class="indicators">
+                <div class="indicator">
+                    <h3>Kondisi Tanaman</h3>
+                    <div class="status" id="plantCondition">Kekurangan N/P/K</div>
+                </div>
+                
+                <div class="indicator">
+                    <h3>Kelembapan Tanah</h3>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="soilMoistureBar" style="width: 0%">
+                                <span class="progress-label" id="soilMoistureValue">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="status" id="soilMoistureStatus">-</div>
+                </div>
+                
+                <div class="indicator">
+                    <h3>Kondisi Tangki</h3>
+                    <div class="tank-indicators">
+                        <div class="tank-indicator">
+                            <div>Nitrogen (N)</div>
+                            <div class="progress-bar tank-progress">
+                                <div class="progress-fill" id="nTankBar" style="width: 0%; background-color: #2196F3">
+                                    <span class="progress-label" id="nTankValue">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tank-indicator">
+                            <div>Phospor (P)</div>
+                            <div class="progress-bar tank-progress">
+                                <div class="progress-fill" id="pTankBar" style="width: 0%; background-color: #FF9800">
+                                    <span class="progress-label" id="pTankValue">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tank-indicator">
+                            <div>Kalium (K)</div>
+                            <div class="progress-bar tank-progress">
+                                <div class="progress-fill" id="kTankBar" style="width: 0%; background-color: #9C27B0">
+                                    <span class="progress-label" id="kTankValue">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tank-indicator">
+                            <div>Air</div>
+                            <div class="progress-bar tank-progress">
+                                <div class="progress-fill" id="waterTankBar" style="width: 0%; background-color: #03A9F4">
+                                    <span class="progress-label" id="waterTankValue">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="buttons">
+            <button class="btn" id="refreshBtn">Refresh Data</button>
+        </div>
+    </div>
+
+    <script>
+        // Fungsi untuk mengupdate data
+        function updateData() {
+            // Simulasi data acak (dalam aplikasi nyata, ini akan diambil dari Firebase/database)
+            const conditions = [
+                "Sehat",
+                "Kekurangan Nitrogen (N)",
+                "Kekurangan Phospor (P)",
+                "Kekurangan Kalium (K)",
+                "Kekurangan Nitrogen (N), Phospor (P),dan Kalium (K)"
+            ];
+            
+            // Update foto tanaman (dalam aplikasi nyata, ini akan diambil dari sumber terbaru)
+            document.getElementById('plantPhoto').src = 'image.png?' + new Date().getTime();
+            
+            // Update kondisi tanaman
+            const randomCondition = conditions[Math.floor(Math.random() * conditions.length)];
+            const conditionElement = document.getElementById('plantCondition');
+            conditionElement.textContent = randomCondition;
+            
+            if (randomCondition === "Sehat") {
+                conditionElement.className = "status good";
+            } else {
+                conditionElement.className = "status danger";
+            }
+            
+            // Update kelembapan tanah
+            const soilMoisture = Math.floor(Math.random() * 101);
+            document.getElementById('soilMoistureBar').style.width = soilMoisture + '%';
+            document.getElementById('soilMoistureValue').textContent = soilMoisture + '%';
+            
+            const soilStatusElement = document.getElementById('soilMoistureStatus');
+            if (soilMoisture < 30) {
+                soilStatusElement.textContent = "Terlalu Kering";
+                soilStatusElement.className = "status danger";
+            } else if (soilMoisture > 70) {
+                soilStatusElement.textContent = "Terlalu Basah";
+                soilStatusElement.className = "status warning";
+            } else {
+                soilStatusElement.textContent = "Optimal";
+                soilStatusElement.className = "status good";
+            }
+            
+            // Update kondisi tangki
+            const nLevel = Math.floor(Math.random() * 101);
+            const pLevel = Math.floor(Math.random() * 101);
+            const kLevel = Math.floor(Math.random() * 101);
+            const waterLevel = Math.floor(Math.random() * 101);
+            
+            document.getElementById('nTankBar').style.width = nLevel + '%';
+            document.getElementById('nTankValue').textContent = nLevel + '%';
+            
+            document.getElementById('pTankBar').style.width = pLevel + '%';
+            document.getElementById('pTankValue').textContent = pLevel + '%';
+            
+            document.getElementById('kTankBar').style.width = kLevel + '%';
+            document.getElementById('kTankValue').textContent = kLevel + '%';
+            
+            document.getElementById('waterTankBar').style.width = waterLevel + '%';
+            document.getElementById('waterTankValue').textContent = waterLevel + '%';
+        }
+        
+        // Event listener untuk tombol refresh
+        document.getElementById('refreshBtn').addEventListener('click', updateData);
+        
+        // Inisialisasi data pertama kali
+        updateData();
+    </script>
+</body>
+</html>
