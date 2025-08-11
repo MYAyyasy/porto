@@ -17,7 +17,7 @@ body {
 
 /* Header Styles */
 header {
-  background-image: url("images/header-bg.jpg");
+  background-image: url("images/header-bg.webp");
   background-size: cover;
   background-position: center;
   color: #fff;
@@ -202,3 +202,4 @@ footer a:hover {
     grid-template-columns: 1fr;
   }
 }
+
