@@ -546,7 +546,7 @@
         // Fungsi untuk mengambil data dari Firebase
         function fetchDataFromFirebase() {
           // Mengambil data status tanaman
-          fetch(`${baseURL}status.json`)
+          fetch(`${baseURL}first_label.json`)
             .then(response => response.json())
             .then(data => {
               const conditionElement = document.getElementById("plantCondition");
