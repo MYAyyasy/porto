@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem IoT untuk Tanaman Toga KWT - MY Ayyasy</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: "Poppins", sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: auto;
+            overflow: hidden;
+        }
+
+        /* Header Styles */
+        header {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('new/c.webp');
+            background-size: cover;
+            background-position: center;
+            color: #fff;
+            padding: 100px 0;
+            text-align: center;
+            position: relative;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 42px;
+            font-weight: 600;
+        }
+
+        header p {
+            margin: 20px 0 0;
+            font-size: 20px;
+            color: #ddd;
+        }
+
+        /* Back Button */
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: "Poppins", sans-serif;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Sections */
+        section {
+            padding: 60px 0;
+            background: white;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        section:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        h2 {
+            color: #1a1a1a;
+            border-bottom: 3px solid #ff5e00;
+            padding-bottom: 10px;
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 30px;
+        }
+
+        h3 {
+            color: #333;
+            font-size: 24px;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        p {
+            font-size: 18px;
+            margin-bottom: 20px;
+            line-height: 1.8;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul li {
+            background: #fff;
+            margin: 10px 0;
+            padding: 15px;
+            border-left: 5px solid #ff5e00;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        ul li:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Image Gallery */
+        .image-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .gallery-item {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item:hover {
+            transform: scale(1.03);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .gallery-caption {
+            padding: 15px;
+            background: white;
+            text-align: center;
+        }
+
+        /* Technical Details */
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .tech-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .tech-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .tech-card h4 {
+            color: #ff5e00;
+            margin-top: 0;
+            font-size: 20px;
+        }
+
+        /* System Architecture */
+        .architecture {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .architecture img {
+            max-width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Results Section */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .result-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .result-card h4 {
+            color: #ff5e00;
+            margin-top: 0;
+            font-size: 22px;
+        }
+
+        .result-card p {
+            font-size: 16px;
+        }
+
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, #441900, #ca4a00);
+            color: #fff;
+            text-align: center;
+            padding: 40px 0;
+            margin-top: 40px;
+        }
+
+        footer a {
+            color: #77aaff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        .copyright {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 32px;
+            }
+            
+            header p {
+                font-size: 18px;
+            }
+            
+            h2 {
+                font-size: 28px;
+            }
+            
+            section {
+                padding: 40px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <button class="back-button" onclick="window.location.href='https://myayyasy.github.io/porto/'">← Kembali ke Portofolio</button>
+        <div class="container">
+            <h1>Sistem IoT untuk Tanaman Toga KWT</h1>
+            <p>Solusi teknologi untuk memantau dan mengoptimalkan pertumbuhan tanaman herbal</p>
+        </div>
+    </header>
+
+    <div class="container">
+            <h2>Gambaran Proyek</h2>
+            <p>PTeknologi Internet of Things (IoT) membuat penyiraman tanaman menjadi lebih efisien dan praktis. Alat penyiraman otomatis berbasis IoT ini memudahkan ibu-ibu KWT Desa Cucukan, Prambanan, Klaten untuk merawat tanaman, sekaligus memperkenalkan anak-anak pada dunia pertanian modern. Alat ini membutuhkan koneksi internet dan memiliki waktu respons sekitar 2 detik tergantung kecepatan jaringan, serta mudah dikelola dan dipelihara. Dengan fitur penyiraman jarak jauh dan monitoring real-time melalui aplikasi yang ringan, pengguna dapat mengontrol penyiraman dari mana saja. Tanaman juga disiram otomatis setiap pagi dan sore tanpa perlu intervensi manual.</p>
+            
+            <div class="image-gallery">
+                <div class="gallery-item">
+                    <img src="new/1.webp" alt="Aplikasi IoT">
+                    <div class="gallery-caption">Aplikasi Mobile IoT</div>
+                </div>
+                <div class="gallery-item">
+                    <img src="new/b.webp" alt="Ptototype">
+                    <div class="gallery-caption">Prototype Perangkat IoT</div>
+                </div>
+                <div class="gallery-item">
+                    <img src="new/d.webp" alt="Pemasangan">
+                    <div class="gallery-caption">Pemasangan Perangkat IoT</div>
+                </div>
+            </div>
+
+            <h2>Tujuan Proyek</h2>
+            <ul>
+                <li>Meningkatkan efisiensi perawatan tanaman toga melalui monitoring otomatis</li>
+                <li>Mengoptimalkan pertumbuhan tanaman dengan kontrol lingkungan yang tepat</li>
+                <li>Mengurangi risiko kegagalan panen akibat kondisi lingkungan yang tidak optimal</li>
+                <li>Memberikan akses data real-time bagi petani untuk pengambilan keputusan</li>
+                <li>Mengembangkan sistem yang terjangkau dan mudah digunakan oleh KWT</li>
+            </ul>
+
+            <h2>Teknologi yang Digunakan</h2>
+            <div class="tech-grid">
+                <div class="tech-card">
+                    <h4>Hardware</h4>
+                    <p>ESP32 Microcontroller dan Modul Relay untuk kontrol irigasi</p>
+                </div>
+                <div class="tech-card">
+                    <h4>Software</h4>
+                    <p>Arduino IDE, Platrorm Pembuat Aplikasi Mobile(Kodular), dan FireBase</p>
+                </div>
+                <div class="tech-card">
+                    <h4>Jaringan</h4>
+                    <p>WiFi, Protokol Komunikasi Data, Cloud storage FireBase</p>
+                </div>
+            </div>
+
+            <h2>Arsitektur Sistem</h2>
+            <p>Sistem IoT untuk Tanaman Toga KWT terdiri dari beberapa komponen utama yang bekerja secara terintegrasi:</p>
+            
+            <div class="architecture">
+                <img src="new/e.webp">
+            </div>
+
+            <h2>Hasil yang Dicapai</h2>
+            <div class="results-grid">
+                <div class="result-card">
+                    <h4>Peningkatan Efisiensi</h4>
+                    <p>Pengurangan waktu pemantauan manual dengan sistem otomatis</p>
+                </div>
+                <div class="result-card">
+                    <h4>Optimasi Pertumbuhan</h4>
+                    <p>Peningkatan kualitas tanaman melalui kontrol lingkungan yang tepat</p>
+                </div>
+                <div class="result-card">
+                    <h4>Penghematan Sumber Daya</h4>
+                    <p>Penggunaan air yang lebih efisien dengan sistem irigasi berbasis IoT</p>
+                </div>
+            </div>
+
+            <h2>Tantangan dan Solusi</h2>
+            <ul>
+                <li><strong>Tantangan:</strong> Kecepatan internet yang tidak stabil di area pertanian<br>
+                    <strong>Solusi:</strong> Implementasi sistem komunikasi yang minim data</li>
+                <li><strong>Tantangan:</strong> Daya tahan perangkat elektronik di lingkungan luar ruangan<br>
+                    <strong>Solusi:</strong> Penggunaan enclosure yang tahan cuaca dan sistem power management yang efisien</li>
+                <li><strong>Tantangan:</strong> Kemudahan penggunaan bagi petani dengan latar belakang teknologi terbatas<br>
+                    <strong>Solusi:</strong> Pengembangan antarmuka yang intuitif dan pelatihan penggunaan sistem</li>
+            </ul>
+    </div>
+
+    <footer>
+        <div class="container">
+            <h2>Kontak</h2>
+            <p>
+                Email:
+                <a href="mailto:yahya12ayyasy@gmail.com">yahya12ayyasy@gmail.com</a>
+            </p>
+            <p>
+                LinkedIn:
+                <a href="https://linkedin.com/in/muhammad-yahya-ayyasy-296476255">Muhammad Yahya Ayyasy</a>
+            </p>
+            <p>
+                GitHub:
+                <a href="https://github.com/MYAyyasy/">MYAyyasy</a>
+            </p>
+            <div class="copyright">
+                © Copyright 2025 MY Ayyasy. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Animasi Scroll
+        document.addEventListener("DOMContentLoaded", function () {
+            const sections = document.querySelectorAll("section");
+
+            const observer = new IntersectionObserver(
+                (entries) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            entry.target.style.opacity = 1;
+                            entry.target.style.transform = "translateY(0)";
+                        }
+                    });
+                },
+                { threshold: 0.1 }
+            );
+
+            sections.forEach((section) => {
+                section.style.opacity = 0;
+                section.style.transform = "translateY(20px)";
+                section.style.transition = "opacity 0.6s ease-out, transform 0.6s ease-out";
+                observer.observe(section);
+            });
+        });
+    </script>
+</body>
+</html>
