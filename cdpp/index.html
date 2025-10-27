@@ -284,6 +284,11 @@
       .buttons {
         margin-top: 30px;
         text-align: center;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        flex-wrap: wrap;
+        align-items: center;
       }
 
       .btn {
@@ -295,6 +300,10 @@
         border-radius: 5px;
         cursor: pointer;
         transition: background-color 0.3s;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
 
       .btn:hover {
@@ -317,9 +326,84 @@
         margin-top: 5px;
       }
 
+      /* Styling untuk kontrol interval */
+      .interval-controls {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .interval-control {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 12px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        background-color: #fafafa;
+      }
+
+      .interval-label {
+        font-size: 14px;
+        color: #333;
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 5px;
+      }
+
+      .interval-input-container {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .interval-input {
+        width: 70px;
+        padding: 6px 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        text-align: center;
+        height: 32px;
+      }
+
+      .interval-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+      }
+
+      .interval-unit {
+        font-size: 13px;
+        color: #666;
+      }
+
+      .interval-info {
+        text-align: center;
+        font-size: 11px;
+        color: #666;
+        min-height: 14px;
+        line-height: 1.2;
+      }
+
       @media (max-width: 768px) {
         .dashboard {
           grid-template-columns: 1fr;
+        }
+        
+        .buttons {
+          flex-direction: column;
+          align-items: center;
+        }
+        
+        .interval-controls {
+          grid-template-columns: 1fr;
+        }
+        
+        .btn {
+          width: 100%;
+          max-width: 200px;
         }
       }
     </style>
@@ -396,16 +480,90 @@
             </div>
             <div class="status" id="soilMoistureStatus">-</div>
           </div>
+
+          <div class="indicator">
+            <!-- Kontrol Interval -->
+            <div class="interval-controls">
+              <!-- Interval 1: Pemupukan (Hari) -->
+              <div class="interval-control">
+                <div class="interval-label">Interval Pemupukan</div>
+                <div class="interval-input-container">
+                  <input 
+                    type="text" 
+                    class="interval-input" 
+                    id="fertilizationInput" 
+                    placeholder="Hari"
+                    maxlength="3"
+                  >
+                  <span class="interval-unit">Hari</span>
+                </div>
+                <div class="interval-info" id="fertilizationInfo">
+                  Saat ini: -
+                </div>
+              </div>
+
+              <!-- Interval 2: Penyiraman (Menit -> Detik) -->
+              <div class="interval-control">
+                <div class="interval-label">Interval Penyiraman</div>
+                <div class="interval-input-container">
+                  <input 
+                    type="text" 
+                    class="interval-input" 
+                    id="wateringInput" 
+                    placeholder="Menit"
+                    maxlength="3"
+                  >
+                  <span class="interval-unit">Menit</span>
+                </div>
+                <div class="interval-info" id="wateringInfo">
+                  Saat ini: -
+                </div>
+              </div>
+
+              <!-- Interval 3: Pemangkasan (Hari) -->
+              <div class="interval-control">
+                <div class="interval-label">Interval Pemangkasan</div>
+                <div class="interval-input-container">
+                  <input 
+                    type="text" 
+                    class="interval-input" 
+                    id="pruningInput" 
+                    placeholder="Hari"
+                    maxlength="3"
+                  >
+                  <span class="interval-unit">Hari</span>
+                </div>
+                <div class="interval-info" id="pruningInfo">
+                  Saat ini: -
+                </div>
+              </div>
+
+              <!-- Interval 4: Pemeriksaan (Menit -> Detik) -->
+              <div class="interval-control">
+                <div class="interval-label">Interval Pemeriksaan</div>
+                <div class="interval-input-container">
+                  <input 
+                    type="text" 
+                    class="interval-input" 
+                    id="inspectionInput" 
+                    placeholder="Menit"
+                    maxlength="3"
+                  >
+                  <span class="interval-unit">Menit</span>
+                </div>
+                <div class="interval-info" id="inspectionInfo">
+                  Saat ini: -
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="buttons">
-        <button class="btn" id="refreshBtn">Refresh Data</button>
       </div>
     </div>
 
     <script>
       document.addEventListener("DOMContentLoaded", function () {
-        const baseURL = "https://cdp1-1e393-default-rtdb.firebaseio.com/detections/latest/";
+        const baseURL = "https://cdp1-1e393-default-rtdb.firebaseio.com/";
         const imageURL = "https://script.google.com/macros/s/AKfycbzDjQUvj1f8NBMAd3PHJKHaWX3QhlkX11oT-84by7qVfonUtNZcqu9J8sb1i8TK2AjD/exec";
         const sidebar = document.getElementById("sidebar");
         const sidebarToggle = document.getElementById("sidebarToggle");
@@ -413,6 +571,61 @@
         const overlay = document.getElementById("overlay");
         const plantPhoto = document.getElementById("plantPhoto");
         const imageStatus = document.getElementById("imageStatus");
+        
+        // Variabel untuk interval
+        let intervals = {
+          fertilization: 0,
+          watering: 0,
+          pruning: 0,
+          inspection: 0
+        };
+
+        // Konfigurasi untuk setiap interval
+        const intervalConfig = {
+          fertilization: {
+            inputId: 'fertilizationInput',
+            infoId: 'fertilizationInfo',
+            firebasePath: 'settings/intervalPemupukan.json',
+            label: 'Pemupukan',
+            unit: 'hari',
+            convertToSeconds: false // Tidak dikonversi ke detik
+          },
+          watering: {
+            inputId: 'wateringInput',
+            infoId: 'wateringInfo',
+            firebasePath: 'settings/durasiPemupukan.json',
+            label: 'Penyiraman',
+            unit: 'menit',
+            convertToSeconds: true // Dikonversi ke detik
+          },
+          pruning: {
+            inputId: 'pruningInput',
+            infoId: 'pruningInfo',
+            firebasePath: 'settings/intervalPembacaan.json',
+            label: 'Pemangkasan',
+            unit: 'hari',
+            convertToSeconds: false // Tidak dikonversi ke detik
+          },
+          inspection: {
+            inputId: 'inspectionInput',
+            infoId: 'inspectionInfo',
+            firebasePath: 'settings/durasiPenyiramanAir.json',
+            label: 'Pemeriksaan',
+            unit: 'menit',
+            convertToSeconds: true // Dikonversi ke detik
+          }
+        };
+
+        // Fungsi untuk memformat teks kondisi tanaman
+        function formatPlantCondition(condition) {
+          const conditionMap = {
+            'kurang_n': 'Kurang Nitrogen',
+            'kurang_p': 'Kurang Phospor', 
+            'kurang_k': 'Kurang Kalium',
+            'sehat': 'Sehat'
+          };
+          return conditionMap[condition] || condition;
+        }
 
         // Fungsi untuk memuat gambar dari Google Apps Script
         async function loadImage() {
@@ -492,13 +705,14 @@
         // Fungsi untuk mengambil data dari Firebase
         function fetchDataFromFirebase() {
           // Mengambil data status tanaman
-          fetch(`${baseURL}status.json`)
+          fetch(`${baseURL}detections/latest/first_label.json`)
             .then(response => response.json())
             .then(data => {
               const conditionElement = document.getElementById("plantCondition");
-              conditionElement.textContent = data;
+              const formattedCondition = formatPlantCondition(data);
+              conditionElement.textContent = formattedCondition;
               
-              if (data === "Sehat") {
+              if (data === "sehat") {
                 conditionElement.className = "status good";
               } else {
                 conditionElement.className = "status danger";
@@ -510,7 +724,7 @@
             });
 
           // Mengambil data kelembapan tanah
-          fetch(`${baseURL}kelembapan.json`)
+          fetch(`${baseURL}kelembapan/current/kelembapan.json`)
             .then(response => response.json())
             .then(soilMoisture => {
               document.getElementById("soilMoistureBar").style.width = soilMoisture + "%";
@@ -533,59 +747,134 @@
               document.getElementById("soilMoistureValue").textContent = "Error";
             });
 
-          // Mengambil data nitrogen
-          fetch(`${baseURL}nitrogen.json`)
-            .then(response => response.json())
-            .then(nLevel => {
-              document.getElementById("nTankBar").style.width = nLevel + "%";
-              document.getElementById("nTankValue").textContent = nLevel + "%";
-            })
-            .catch(error => {
-              console.error("Gagal mengambil data nitrogen:", error);
-              document.getElementById("nTankValue").textContent = "Error";
-            });
-
-          // Mengambil data posphor (kemungkinan maksudnya phosphor/fosfor)
-          fetch(`${baseURL}posphor.json`)
-            .then(response => response.json())
-            .then(pLevel => {
-              document.getElementById("pTankBar").style.width = pLevel + "%";
-              document.getElementById("pTankValue").textContent = pLevel + "%";
-            })
-            .catch(error => {
-              console.error("Gagal mengambil data posphor:", error);
-              document.getElementById("pTankValue").textContent = "Error";
-            });
-
-          // Mengambil data kalium
-          fetch(`${baseURL}kalium.json`)
-            .then(response => response.json())
-            .then(kLevel => {
-              document.getElementById("kTankBar").style.width = kLevel + "%";
-              document.getElementById("kTankValue").textContent = kLevel + "%";
-            })
-            .catch(error => {
-              console.error("Gagal mengambil data kalium:", error);
-              document.getElementById("kTankValue").textContent = "Error";
-            });
-
-          // Mengambil data air
-          fetch(`${baseURL}air.json`)
-            .then(response => response.json())
-            .then(waterLevel => {
-              document.getElementById("waterTankBar").style.width = waterLevel + "%";
-              document.getElementById("waterTankValue").textContent = waterLevel + "%";
-            })
-            .catch(error => {
-              console.error("Gagal mengambil data air:", error);
-              document.getElementById("waterTankValue").textContent = "Error";
-            });
+          // Mengambil data interval dari Firebase untuk semua jenis
+          Object.keys(intervalConfig).forEach(key => {
+            const config = intervalConfig[key];
+            fetch(`${baseURL}${config.firebasePath}`)
+              .then(response => response.json())
+              .then(interval => {
+                // Konversi dari detik ke menit/hari untuk tampilan
+                let displayValue = interval;
+                if (config.convertToSeconds && interval > 0) {
+                  displayValue = Math.round(interval / 60); // Konversi detik ke menit
+                }
+                intervals[key] = displayValue || 0;
+                updateIntervalDisplay(key);
+              })
+              .catch(error => {
+                console.error(`Gagal mengambil data interval ${config.label}:`, error);
+              });
+          });
         }
 
-        // Event listener untuk tombol refresh
-        document.getElementById("refreshBtn").addEventListener("click", function() {
-          fetchDataFromFirebase();
-          loadImage();
+        // Fungsi untuk memperbarui tampilan interval
+        function updateIntervalDisplay(intervalType) {
+          const config = intervalConfig[intervalType];
+          const inputElement = document.getElementById(config.inputId);
+          const infoElement = document.getElementById(config.infoId);
+          
+          if (intervals[intervalType] > 0) {
+            inputElement.value = intervals[intervalType];
+            infoElement.textContent = `Saat ini: ${intervals[intervalType]} ${config.unit}`;
+          } else {
+            inputElement.value = "";
+            infoElement.textContent = "Saat ini: -";
+          }
+        }
+
+        // Fungsi untuk validasi input numerik
+        function validateNumericInput(event) {
+          // Hanya izinkan angka dan tombol kontrol
+          const charCode = event.which ? event.which : event.keyCode;
+          if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+            event.preventDefault();
+            return false;
+          }
+          return true;
+        }
+
+        // Fungsi untuk mengatur interval di Firebase
+        function setIntervalValue(intervalType, value) {
+          const config = intervalConfig[intervalType];
+          
+          // Validasi input
+          if (!value || value <= 0) {
+            const infoElement = document.getElementById(config.infoId);
+            infoElement.textContent = 'Masukkan angka yang valid';
+            infoElement.style.color = '#f44336';
+            
+            setTimeout(() => {
+              infoElement.textContent = `Saat ini: ${intervals[intervalType]} ${config.unit}`;
+              infoElement.style.color = '#666';
+            }, 3000);
+            return;
+          }
+
+          // Konversi nilai untuk dikirim ke Firebase
+          let valueToSend = parseInt(value);
+          if (config.convertToSeconds) {
+            valueToSend = valueToSend * 60; // Konversi menit ke detik
+          }
+
+          fetch(`${baseURL}${config.firebasePath}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(valueToSend)
+          })
+          .then(response => response.json())
+          .then(data => {
+            console.log(`Interval ${config.label} berhasil diatur:`, data);
+            intervals[intervalType] = parseInt(value);
+            updateIntervalDisplay(intervalType);
+            
+            // Tampilkan pesan sukses
+            const infoElement = document.getElementById(config.infoId);
+            infoElement.textContent = `Berhasil: ${value} ${config.unit}`;
+            infoElement.style.color = '#4caf50';
+            
+            // Kembalikan ke teks asli setelah 3 detik
+            setTimeout(() => {
+              infoElement.textContent = `Saat ini: ${value} ${config.unit}`;
+              infoElement.style.color = '#666';
+            }, 3000);
+          })
+          .catch(error => {
+            console.error(`Gagal mengatur interval ${config.label}:`, error);
+            
+            // Tampilkan pesan error
+            const infoElement = document.getElementById(config.infoId);
+            infoElement.textContent = 'Gagal mengatur';
+            infoElement.style.color = '#f44336';
+            
+            // Kembalikan ke teks asli setelah 3 detik
+            setTimeout(() => {
+              infoElement.textContent = `Saat ini: ${intervals[intervalType]} ${config.unit}`;
+              infoElement.style.color = '#666';
+            }, 3000);
+          });
+        }
+
+        // Setup event listener untuk semua input interval
+        Object.keys(intervalConfig).forEach(key => {
+          const config = intervalConfig[key];
+          const inputElement = document.getElementById(config.inputId);
+          
+          // Event listener untuk input (enter key saja)
+          inputElement.addEventListener("keypress", function(event) {
+            // Validasi input numerik
+            validateNumericInput(event);
+            
+            // Hanya kirim ke Firebase ketika tombol Enter ditekan
+            if (event.key === "Enter") {
+              const value = this.value.trim();
+              setIntervalValue(key, value);
+              
+              // Optional: Hilangkan fokus dari input setelah Enter
+              this.blur();
+            }
+          });
         });
 
         // Inisialisasi data pertama kali
