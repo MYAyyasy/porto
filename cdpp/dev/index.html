@@ -387,6 +387,43 @@
         line-height: 1.2;
       }
 
+      /* Styling untuk tombol lampu */
+      .lamp-control {
+        margin-top: 20px;
+        text-align: center;
+      }
+
+      .lamp-btn {
+        background-color: #f44336;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin: 0 auto;
+      }
+
+      .lamp-btn.on {
+        background-color: #4caf50;
+      }
+
+      .lamp-btn:hover {
+        opacity: 0.9;
+      }
+
+      .lamp-status {
+        margin-top: 8px;
+        font-size: 12px;
+        color: #666;
+      }
+
       @media (max-width: 768px) {
         .dashboard {
           grid-template-columns: 1fr;
@@ -502,27 +539,27 @@
                 </div>
               </div>
 
-              <!-- Interval 2: Penyiraman (Menit -> Detik) -->
+              <!-- Interval 2: Durasi Pemupukan (Detik) -->
               <div class="interval-control">
-                <div class="interval-label">Interval Penyiraman</div>
+                <div class="interval-label">Durasi Pemupukan</div>
                 <div class="interval-input-container">
                   <input 
                     type="text" 
                     class="interval-input" 
                     id="wateringInput" 
-                    placeholder="Menit"
+                    placeholder="Detik"
                     maxlength="3"
                   >
-                  <span class="interval-unit">Menit</span>
+                  <span class="interval-unit">Detik</span>
                 </div>
                 <div class="interval-info" id="wateringInfo">
                   Saat ini: -
                 </div>
               </div>
 
-              <!-- Interval 3: Pemangkasan (Hari) -->
+              <!-- Interval 3: Interval Pembacaan (Hari) -->
               <div class="interval-control">
-                <div class="interval-label">Interval Pemangkasan</div>
+                <div class="interval-label">Interval Pembacaan</div>
                 <div class="interval-input-container">
                   <input 
                     type="text" 
@@ -538,22 +575,51 @@
                 </div>
               </div>
 
-              <!-- Interval 4: Pemeriksaan (Menit -> Detik) -->
+              <!-- Interval 4: Durasi Penyiraman Air (Detik) -->
               <div class="interval-control">
-                <div class="interval-label">Interval Pemeriksaan</div>
+                <div class="interval-label">Durasi Penyiraman Air</div>
                 <div class="interval-input-container">
                   <input 
                     type="text" 
                     class="interval-input" 
                     id="inspectionInput" 
-                    placeholder="Menit"
+                    placeholder="Detik"
                     maxlength="3"
                   >
-                  <span class="interval-unit">Menit</span>
+                  <span class="interval-unit">Detik</span>
                 </div>
                 <div class="interval-info" id="inspectionInfo">
                   Saat ini: -
                 </div>
+              </div>
+
+              <!-- Interval 5: Tambahan (Detik) -->
+              <div class="interval-control">
+                <div class="interval-label">Interval Tambahan</div>
+                <div class="interval-input-container">
+                  <input 
+                    type="text" 
+                    class="interval-input" 
+                    id="additionalInput" 
+                    placeholder="Detik"
+                    maxlength="3"
+                  >
+                  <span class="interval-unit">Detik</span>
+                </div>
+                <div class="interval-info" id="additionalInfo">
+                  Saat ini: -
+                </div>
+              </div>
+            </div>
+
+            <!-- Tombol Kontrol Lampu -->
+            <div class="lamp-control">
+              <button class="lamp-btn" id="lampBtn">
+                <i class="fas fa-lightbulb"></i>
+                <span id="lampText">Nyalakan Lampu</span>
+              </button>
+              <div class="lamp-status" id="lampStatus">
+                Status: -
               </div>
             </div>
           </div>
@@ -571,14 +637,20 @@
         const overlay = document.getElementById("overlay");
         const plantPhoto = document.getElementById("plantPhoto");
         const imageStatus = document.getElementById("imageStatus");
+        const lampBtn = document.getElementById("lampBtn");
+        const lampText = document.getElementById("lampText");
+        const lampStatus = document.getElementById("lampStatus");
         
-        // Variabel untuk interval
+        // Variabel untuk interval dan status lampu
         let intervals = {
           fertilization: 0,
           watering: 0,
           pruning: 0,
-          inspection: 0
+          inspection: 0,
+          additional: 0
         };
+
+        let lampState = false;
 
         // Konfigurasi untuk setiap interval
         const intervalConfig = {
@@ -594,15 +666,15 @@
             inputId: 'wateringInput',
             infoId: 'wateringInfo',
             firebasePath: 'settings/durasiPemupukan.json',
-            label: 'Penyiraman',
-            unit: 'menit',
-            convertToSeconds: true // Dikonversi ke detik
+            label: 'Durasi Pemupukan',
+            unit: 'detik',
+            convertToSeconds: false // Sudah dalam detik
           },
           pruning: {
             inputId: 'pruningInput',
             infoId: 'pruningInfo',
             firebasePath: 'settings/intervalPembacaan.json',
-            label: 'Pemangkasan',
+            label: 'Interval Pembacaan',
             unit: 'hari',
             convertToSeconds: false // Tidak dikonversi ke detik
           },
@@ -610,9 +682,17 @@
             inputId: 'inspectionInput',
             infoId: 'inspectionInfo',
             firebasePath: 'settings/durasiPenyiramanAir.json',
-            label: 'Pemeriksaan',
-            unit: 'menit',
-            convertToSeconds: true // Dikonversi ke detik
+            label: 'Durasi Penyiraman Air',
+            unit: 'detik',
+            convertToSeconds: false // Sudah dalam detik
+          },
+          additional: {
+            inputId: 'additionalInput',
+            infoId: 'additionalInfo',
+            firebasePath: 'settings/testInterval.json',
+            label: 'Interval Tambahan',
+            unit: 'detik',
+            convertToSeconds: false // Sudah dalam detik
           }
         };
 
@@ -753,18 +833,24 @@
             fetch(`${baseURL}${config.firebasePath}`)
               .then(response => response.json())
               .then(interval => {
-                // Konversi dari detik ke menit/hari untuk tampilan
-                let displayValue = interval;
-                if (config.convertToSeconds && interval > 0) {
-                  displayValue = Math.round(interval / 60); // Konversi detik ke menit
-                }
-                intervals[key] = displayValue || 0;
+                intervals[key] = interval || 0;
                 updateIntervalDisplay(key);
               })
               .catch(error => {
                 console.error(`Gagal mengambil data interval ${config.label}:`, error);
               });
           });
+
+          // Mengambil status lampu
+          fetch(`${baseURL}settings/testMode.json`)
+            .then(response => response.json())
+            .then(state => {
+              lampState = state || false;
+              updateLampDisplay();
+            })
+            .catch(error => {
+              console.error("Gagal mengambil status lampu:", error);
+            });
         }
 
         // Fungsi untuk memperbarui tampilan interval
@@ -779,6 +865,21 @@
           } else {
             inputElement.value = "";
             infoElement.textContent = "Saat ini: -";
+          }
+        }
+
+        // Fungsi untuk memperbarui tampilan lampu
+        function updateLampDisplay() {
+          if (lampState) {
+            lampBtn.classList.add('on');
+            lampText.textContent = 'Matikan Lampu';
+            lampStatus.textContent = 'Status: MENYALA';
+            lampStatus.style.color = '#4caf50';
+          } else {
+            lampBtn.classList.remove('on');
+            lampText.textContent = 'Nyalakan Lampu';
+            lampStatus.textContent = 'Status: MATI';
+            lampStatus.style.color = '#f44336';
           }
         }
 
@@ -856,6 +957,36 @@
           });
         }
 
+        // Fungsi untuk mengontrol lampu
+        function toggleLamp() {
+          const newState = !lampState;
+          
+          fetch(`${baseURL}settings/lampState.json`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newState)
+          })
+          .then(response => response.json())
+          .then(data => {
+            console.log('Status lampu berhasil diubah:', data);
+            lampState = newState;
+            updateLampDisplay();
+          })
+          .catch(error => {
+            console.error('Gagal mengubah status lampu:', error);
+            
+            // Tampilkan pesan error
+            lampStatus.textContent = 'Gagal mengubah status';
+            lampStatus.style.color = '#f44336';
+            
+            setTimeout(() => {
+              updateLampDisplay();
+            }, 3000);
+          });
+        }
+
         // Setup event listener untuk semua input interval
         Object.keys(intervalConfig).forEach(key => {
           const config = intervalConfig[key];
@@ -876,6 +1007,9 @@
             }
           });
         });
+
+        // Event listener untuk tombol lampu
+        lampBtn.addEventListener("click", toggleLamp);
 
         // Inisialisasi data pertama kali
         fetchDataFromFirebase();
