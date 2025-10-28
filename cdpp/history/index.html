@@ -242,54 +242,19 @@
             grid-column: 1 / -1;
         }
 
-        .control-panel {
+        .status-panel {
             background-color: white;
             border-radius: 8px;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-            padding: 20px;
+            padding: 15px;
             margin-bottom: 20px;
-        }
-
-        .control-panel h3 {
-            color: var(--primary-color);
-            margin-top: 0;
-            margin-bottom: 15px;
             text-align: center;
         }
 
-        .control-input {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .status-panel h3 {
+            color: var(--primary-color);
+            margin-top: 0;
             margin-bottom: 10px;
-            justify-content: center;
-        }
-
-        .control-input label {
-            min-width: 150px;
-            font-weight: 500;
-        }
-
-        .control-input input {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            width: 100px;
-        }
-
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 10px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
         }
 
         .status-indicator {
@@ -310,6 +275,12 @@
 
         .status-connecting {
             background-color: #ff9800;
+        }
+
+        .auto-refresh-info {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
         }
 
         .legend {
@@ -349,15 +320,6 @@
             
             .chart-container {
                 height: 400px;
-            }
-            
-            .control-input {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .control-input label {
-                min-width: auto;
             }
             
             .legend {
@@ -400,20 +362,15 @@
         <h1>Monitoring Kondisi Tanaman</h1>
         
         <div class="dashboard">
-            <!-- Panel Kontrol -->
-            <div class="control-panel">
-                <h3>Kontrol Data</h3>
-                <div class="control-input">
-                    <label>Jumlah Data:</label>
-                    <input type="number" id="dataCount" value="48" min="1" max="1000">
-                    <button class="btn" onclick="fetchAllData()" style="padding: 8px 15px;">
-                        <span id="refreshText">Ambil Data</span>
-                        <span id="refreshSpinner" class="loading" style="display: none;"></span>
-                    </button>
-                </div>
-                <div style="margin-top: 10px; text-align: center;">
+            <!-- Panel Status -->
+            <div class="status-panel">
+                <h3>Status Sistem</h3>
+                <div>
                     <span id="firebaseStatus" class="status-indicator status-connecting"></span>
                     <span id="firebaseStatusText">Menghubungkan ke Firebase...</span>
+                </div>
+                <div class="auto-refresh-info">
+                    🔄 Auto-refresh setiap 5 detik • Menampilkan 48 data terbaru
                 </div>
             </div>
 
@@ -451,7 +408,7 @@
             <div class="charts-container">
                 <!-- Grafik Kelembapan Tanah -->
                 <div class="chart-card full-width-chart">
-                    <h3>Grafik Kelembapan Tanah</h3>
+                    <h3>Grafik Kelembapan Tanah (48 Data Terbaru)</h3>
                     <div class="chart-container">
                         <canvas id="soilMoistureChart"></canvas>
                     </div>
@@ -459,7 +416,7 @@
                 
                 <!-- Grafik Status Pemupukan -->
                 <div class="chart-card full-width-chart">
-                    <h3>Grafik Status Kebutuhan Pemupukan</h3>
+                    <h3>Grafik Status Kebutuhan Pemupukan (48 Data Terbaru)</h3>
                     <div class="chart-container">
                         <canvas id="fertilizationChart"></canvas>
                     </div>
@@ -488,8 +445,12 @@
 
     <script>
         const baseURL = "https://cdp1-1e393-default-rtdb.firebaseio.com/";
+        const DATA_COUNT = 48; // Fixed 48 data
+        const REFRESH_INTERVAL = 5000; // 5 detik
+        
         let soilMoistureChart = null;
         let fertilizationChart = null;
+        let refreshInterval;
 
         // URL gambar untuk setiap tanaman
         const imageURLs = {
@@ -517,13 +478,26 @@
             checkScreenSize();
             updatePlantTitles();
             loadAllImages();
-            fetchAllData();
+            
+            // Mulai auto-refresh
+            startAutoRefresh();
 
             // Event listeners
             sidebarToggle.addEventListener("click", toggleSidebar);
             overlay.addEventListener("click", closeSidebarFunc);
             window.addEventListener("resize", handleResize);
         });
+
+        // Fungsi untuk memulai auto-refresh
+        function startAutoRefresh() {
+            // Jalankan pertama kali
+            fetchAllData();
+            
+            // Set interval untuk auto-refresh
+            refreshInterval = setInterval(fetchAllData, REFRESH_INTERVAL);
+            
+            console.log(`Auto-refresh dimulai: ${REFRESH_INTERVAL/1000} detik sekali`);
+        }
 
         // Fungsi untuk sidebar
         function checkScreenSize() {
@@ -606,9 +580,10 @@
 
         // Fungsi utama untuk mengambil semua data
         async function fetchAllData() {
-            const dataCount = parseInt(document.getElementById('dataCount').value) || 48;
-            showRefreshLoading();
-            updateFirebaseStatus("Sedang mengambil data...", "connecting");
+            const timestamp = new Date().toLocaleTimeString();
+            console.log(`🔄 Memperbarui data... (${timestamp})`);
+            
+            updateFirebaseStatus("Memperbarui data...", "connecting");
             
             try {
                 // Ambil data kelembapan
@@ -628,7 +603,7 @@
                     }));
 
                     moistureArray.sort((a, b) => b.key - a.key);
-                    const topMoistureData = moistureArray.slice(0, dataCount);
+                    const topMoistureData = moistureArray.slice(0, DATA_COUNT);
                     displayMoistureChart(topMoistureData);
                 }
                 
@@ -642,19 +617,16 @@
                     }));
 
                     fertilizationArray.sort((a, b) => b.key - a.key);
-                    const topFertilizationData = fertilizationArray.slice(0, dataCount);
+                    const topFertilizationData = fertilizationArray.slice(0, DATA_COUNT);
                     displayFertilizationChart(topFertilizationData);
                 }
                 
-                updateFirebaseStatus(`Berhasil mengambil data`, "connected");
+                updateFirebaseStatus(`Data terbaru (${new Date().toLocaleTimeString()})`, "connected");
                 
             } catch (error) {
                 console.error("Error:", error);
                 updateFirebaseStatus(`Error: ${error.message}`, "error");
-                createSimulatedData(dataCount);
             }
-            
-            hideRefreshLoading();
         }
 
         function displayMoistureChart(data) {
@@ -824,63 +796,6 @@
             });
         }
 
-        function createSimulatedData(dataCount) {
-            // Data simulasi kelembapan
-            const moistureData = [];
-            const baseTimestamp = 1761383808;
-            
-            for (let i = 0; i < dataCount; i++) {
-                const key = (baseTimestamp - i * 17).toString();
-                const hour = 16;
-                const minute = 16 - Math.floor(i / 3);
-                const second = 48 - (i % 3) * 15;
-                
-                moistureData.push({
-                    key: key,
-                    datetime: `2025-10-25 ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}`,
-                    kelembapan: 60 + Math.floor(Math.random() * 10)
-                });
-            }
-            
-            moistureData.sort((a, b) => b.key - a.key);
-            displayMoistureChart(moistureData);
-
-            // Data simulasi pemupukan
-            const fertilizationData = [];
-            const statuses = ['sehat', 'kekurangan N', 'kekurangan P', 'kekurangan K'];
-            
-            for (let i = 0; i < dataCount; i++) {
-                const key = (baseTimestamp - i * 17).toString();
-                const hour = 16;
-                const minute = 16 - Math.floor(i / 3);
-                const second = 48 - (i % 3) * 15;
-                
-                fertilizationData.push({
-                    key: key,
-                    datetime: `2025-10-25 ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:${second.toString().padStart(2, '0')}`,
-                    status: statuses[Math.floor(Math.random() * statuses.length)],
-                    durasi: 15
-                });
-            }
-            
-            fertilizationData.sort((a, b) => b.key - a.key);
-            displayFertilizationChart(fertilizationData);
-        }
-
-        function showRefreshLoading() {
-            const refreshText = document.getElementById('refreshText');
-            const refreshSpinner = document.getElementById('refreshSpinner');
-            refreshText.textContent = "Memuat...";
-            refreshSpinner.style.display = "inline-block";
-        }
-
-        function hideRefreshLoading() {
-            const refreshText = document.getElementById('refreshText');
-            const refreshSpinner = document.getElementById('refreshSpinner');
-            refreshText.textContent = "Ambil Data";
-            refreshSpinner.style.display = "none";
-        }
-
         function updateFirebaseStatus(message, status) {
             const firebaseStatus = document.getElementById('firebaseStatus');
             const firebaseStatusText = document.getElementById('firebaseStatusText');
@@ -899,6 +814,13 @@
                     break;
             }
         }
+
+        // Cleanup interval ketika halaman ditutup
+        window.addEventListener('beforeunload', function() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+        });
     </script>
 </body>
 </html>
