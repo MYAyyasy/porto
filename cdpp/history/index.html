@@ -455,7 +455,7 @@
         // URL gambar untuk setiap tanaman
         const imageURLs = {
             plant1: "https://script.google.com/macros/s/AKfycbyGeAsuHY41UukbGnqL1UVpgclPhLWgoqIubZk0QyY1LW0VWkURDfmF_e6KsA5YkEFB/exec?file=x.jpg",
-            plant2: "https://script.google.com/macros/s/AKfycbyGeAsuHY41UukbGnqL1UVpgclPhLWgoqIubZk0QyY1LW0VWkURDfmF_e6KsA5YkEFB/execfile=h1.jpg",
+            plant2: "https://script.google.com/macros/s/AKfycbyGeAsuHY41UukbGnqL1UVpgclPhLWgoqIubZk0QyY1LW0VWkURDfmF_e6KsA5YkEFB/exec?file=h1.jpg",
             plant3: "https://script.google.com/macros/s/AKfycbyGeAsuHY41UukbGnqL1UVpgclPhLWgoqIubZk0QyY1LW0VWkURDfmF_e6KsA5YkEFB/exec?file=h2.jpg",
             plant4: "https://script.google.com/macros/s/AKfycbyGeAsuHY41UukbGnqL1UVpgclPhLWgoqIubZk0QyY1LW0VWkURDfmF_e6KsA5YkEFB/exec?file=h3.jpg"
         };
@@ -554,7 +554,7 @@
                 statusElement.textContent = "🔄 Memuat gambar...";
                 const response = await fetch(imageURLs[plantId]);
                 const data = await response.json();
-
+        
                 if (data.success) {
                     const imageSrc = `data:${data.contentType};base64,${data.base64}`;
                     imageElement.src = imageSrc;
@@ -570,12 +570,12 @@
         }
 
         function loadAllImages() {
-            for (let i = 1; i <= 4; i++) {
-                loadImage(`plant${i}`, 
-                    document.getElementById(`plantPhoto${i}`), 
-                    document.getElementById(`imageStatus${i}`)
-                );
-            }
+          for (let i = 1; i <= 4; i++) {
+            loadImage(`plant${i}`, 
+              document.getElementById(`plantPhoto${i}`), 
+              document.getElementById(`imageStatus${i}`)
+            );
+          }
         }
 
         // Fungsi utama untuk mengambil semua data
