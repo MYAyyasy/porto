@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profil Pengembang</title>
+    <style>
+      :root {
+        --header-height: 30px;
+        --sidebar-width: 225px;
+        --primary-color: #6f2da8;
+        --hover-color: #592486;
+        --transition-speed: 0.3s;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      .center {
+        text-align: center;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        background-color: #f9f9f9;
+        color: #333;
+      }
+
+      .header {
+        background-color: var(--primary-color);
+        color: white;
+        height: var(--header-height);
+        padding: 0 15px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        transition: all var(--transition-speed) ease;
+      }
+
+      .header:hover {
+        background-color: var(--hover-color);
+      }
+
+      .sidebar-toggle {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+        padding: 5px;
+        border-radius: 3px;
+        transition: transform 0.2s ease;
+      }
+
+      .sidebar-toggle:hover {
+        transform: scale(1.1);
+      }
+
+      .sidebar {
+        width: var(--sidebar-width);
+        background-color: #fff;
+        height: calc(100vh - var(--header-height));
+        position: fixed;
+        top: var(--header-height);
+        left: 0;
+        transition: transform var(--transition-speed) ease;
+        z-index: 99;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .sidebar-content {
+        padding: 20px;
+        flex: 1;
+      }
+
+      .sidebar.closed {
+        transform: translateX(calc(-1 * var(--sidebar-width)));
+      }
+
+      .main-content {
+        padding: calc(var(--header-height) + 20px) 20px 20px;
+        margin-left: var(--sidebar-width);
+        transition: margin-left var(--transition-speed) ease;
+        min-height: calc(100vh - var(--header-height));
+        background-color: #ffffffa8;
+      }
+
+      .main-content.expanded {
+        margin-left: 0;
+      }
+
+      .menu-item {
+        padding: 12px 10px;
+        border-bottom: 1px solid #eee;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+      }
+
+      .menu-item:hover {
+        background-color: #f5f5f5;
+        padding-left: 15px;
+      }
+
+      .menu-item.active {
+        background-color: rgba(111, 45, 168, 0.1);
+        border-left: 3px solid var(--primary-color);
+      }
+
+      .menu-item i {
+        margin-right: 10px;
+        color: var(--primary-color);
+      }
+
+      .sidebar-footer {
+        padding: 15px;
+        text-align: center;
+        font-size: 12px;
+        color: #888;
+        border-top: 1px solid #eee;
+      }
+
+      @media (max-width: 768px) {
+        .sidebar {
+          transform: translateX(calc(-1 * var(--sidebar-width)));
+        }
+
+        .sidebar.open {
+          transform: translateX(0);
+        }
+
+        .main-content {
+          margin-left: 0;
+        }
+
+        .menu-item {
+          padding: 15px 10px;
+        }
+      }
+
+      /* Animasi untuk konten utama saat sidebar bergerak */
+      @keyframes fadeIn {
+        from {
+          opacity: 0.8;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      .main-content {
+        animation: fadeIn 0.5s ease;
+      }
+
+      /* Efek overlay saat sidebar terbuka di mobile */
+      .overlay {
+        position: fixed;
+        top: var(--header-height);
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 98;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity var(--transition-speed) ease;
+      }
+
+      .overlay.active {
+        opacity: 1;
+        pointer-events: all;
+      }
+
+      h1 {
+        color: var(--primary-color);
+        text-align: center;
+        margin-bottom: 30px;
+        text-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Styling untuk konten profil */
+      .profile-container {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 25px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .profile-card {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        padding: 25px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .profile-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      .team-profile {
+        background: linear-gradient(135deg, #6f2da8, #8a3bc5);
+        color: white;
+      }
+
+      .member-profile {
+        border-left: 5px solid var(--primary-color);
+      }
+
+      .profile-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        position: relative;
+      }
+
+      .profile-icon {
+        width: 60px;
+        height: 60px;
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        font-size: 24px;
+      }
+
+      .member-profile .profile-icon {
+        background-color: var(--primary-color);
+        color: white;
+      }
+
+      .profile-title {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 5px;
+      }
+
+      .profile-subtitle {
+        font-size: 16px;
+        opacity: 0.8;
+      }
+
+      .team-profile .profile-subtitle {
+        opacity: 0.9;
+      }
+
+      .profile-description {
+        margin-bottom: 20px;
+        line-height: 1.6;
+      }
+
+      .profile-points {
+        list-style-type: none;
+        padding-left: 0;
+      }
+
+      .profile-points li {
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        position: relative;
+        padding-left: 25px;
+      }
+
+      .member-profile .profile-points li {
+        border-bottom: 1px solid #eee;
+      }
+
+      .profile-points li:before {
+        content: "•";
+        color: var(--primary-color);
+        font-size: 20px;
+        position: absolute;
+        left: 0;
+        top: 5px;
+      }
+
+      .team-profile .profile-points li:before {
+        color: white;
+      }
+
+      .members-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+        margin-top: 10px;
+      }
+
+      /* Styling untuk Instagram icon */
+      .instagram-link {
+        position: absolute;
+        top: 0;
+        right: 0;
+        color: var(--primary-color);
+        font-size: 20px;
+        transition: transform 0.2s ease, color 0.2s ease;
+      }
+
+      .instagram-link:hover {
+        transform: scale(1.2);
+        color: #E1306C;
+      }
+
+      .team-profile .instagram-link {
+        color: white;
+      }
+
+      @media (max-width: 768px) {
+        .members-grid {
+          grid-template-columns: 1fr;
+        }
+        
+        .profile-header {
+          flex-direction: column;
+          text-align: center;
+        }
+        
+        .profile-icon {
+          margin-right: 0;
+          margin-bottom: 15px;
+        }
+        
+        .instagram-link {
+          position: relative;
+          margin-top: 10px;
+        }
+      }
+    </style>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="header">
+      <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="fas fa-bars"></i>
+      </button>
+      <p>Profil Pengembang</p>
+      <div style="width: 20px"></div>
+    </div>
+
+    <div class="sidebar closed" id="sidebar">
+      <div class="sidebar-content">
+        <h3
+          style="
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            text-align: center;
+          "
+        >
+          Menu
+        </h3>
+        <div class="menu-item" id="berandaMenu">
+          <i class="fas fa-home"></i> Beranda
+        </div>
+        <div class="menu-item" id="databaseMenu">
+          <i class="fas fa-chart-bar"></i> Database
+        </div>
+        <div class="menu-item active">
+          <i class="fas fa-user"></i> Profil Pengembang
+        </div>
+      </div>
+      <div class="sidebar-footer">
+        <p>v1.0.0 © 2025</p>
+        <p>copyright CDP5</p>
+      </div>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+
+    <div class="main-content" id="mainContent">
+      <h1>Profil Pengembang</h1>
+      
+      <div class="profile-container">
+        <!-- Profil Kelompok -->
+        <div class="profile-card team-profile">
+          <div class="profile-header">
+            <div class="profile-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <div>
+              <div class="profile-title">Kelompok CDP5</div>
+              <div class="profile-subtitle">Tim Pengembang Sistem Monitoring Tanaman</div>
+            </div>
+            <a href="#" class="instagram-link">
+              <i class="fab fa-instagram"></i>
+            </a>
+          </div>
+          
+          <div class="profile-description">
+            Kami adalah tim mahasiswa yang berdedikasi untuk mengembangkan sistem monitoring tanaman otomatis. 
+            Dengan menggabungkan keahlian dalam bidang teknologi dan pertanian, kami menciptakan solusi inovatif 
+            untuk meningkatkan efisiensi dan produktivitas dalam budidaya tanaman.
+          </div>
+          
+          <ul class="profile-points">
+            <li>Mengembangkan sistem monitoring tanaman berbasis IoT</li>
+            <li>Integrasi sensor kelembapan tanah dan kamera untuk analisis kondisi tanaman</li>
+            <li>Pengembangan dashboard real-time untuk monitoring dan kontrol</li>
+            <li>Implementasi algoritma deteksi kondisi tanaman menggunakan machine learning</li>
+            <li>Fokus pada solusi pertanian presisi yang ramah pengguna</li>
+          </ul>
+        </div>
+        
+        <!-- Profil Anggota -->
+        <div class="members-grid">
+          <!-- Anggota 1 -->
+          <div class="profile-card member-profile">
+            <div class="profile-header">
+              <div class="profile-icon">
+                <i class="fas fa-user"></i>
+              </div>
+              <div>
+                <div class="profile-title">Ahmad Fauzi</div>
+                <div class="profile-subtitle">Backend Developer & IoT Specialist</div>
+              </div>
+              <a href="https://instagram.com/ahmadfauzi" target="_blank" class="instagram-link">
+                <i class="fab fa-instagram"></i>
+              </a>
+            </div>
+            
+            <ul class="profile-points">
+              <li>Mengembangkan sistem backend dan API</li>
+              <li>Integrasi sensor dan perangkat IoT</li>
+              <li>Manajemen database dan server</li>
+              <li>Optimasi performa sistem</li>
+              <li>Pengembangan algoritma kontrol otomatis</li>
+            </ul>
+          </div>
+          
+          <!-- Anggota 2 -->
+          <div class="profile-card member-profile">
+            <div class="profile-header">
+              <div class="profile-icon">
+                <i class="fas fa-user"></i>
+              </div>
+              <div>
+                <div class="profile-title">Siti Nurhaliza</div>
+                <div class="profile-subtitle">Frontend Developer & UI/UX Designer</div>
+              </div>
+              <a href="https://instagram.com/sitinurhaliza" target="_blank" class="instagram-link">
+                <i class="fab fa-instagram"></i>
+              </a>
+            </div>
+            
+            <ul class="profile-points">
+              <li>Mendesain antarmuka pengguna yang intuitif</li>
+              <li>Mengembangkan dashboard monitoring</li>
+              <li>Implementasi responsive design</li>
+              <li>Optimasi pengalaman pengguna</li>
+              <li>Integrasi frontend dengan backend API</li>
+            </ul>
+          </div>
+          
+          <!-- Anggota 3 -->
+          <div class="profile-card member-profile">
+            <div class="profile-header">
+              <div class="profile-icon">
+                <i class="fas fa-user"></i>
+              </div>
+              <div>
+                <div class="profile-title">Budi Santoso</div>
+                <div class="profile-subtitle">Data Scientist & ML Engineer</div>
+              </div>
+              <a href="https://instagram.com/budisantoso" target="_blank" class="instagram-link">
+                <i class="fab fa-instagram"></i>
+              </a>
+            </div>
+            
+            <ul class="profile-points">
+              <li>Pengembangan model machine learning untuk deteksi kondisi tanaman</li>
+              <li>Analisis data sensor dan gambar</li>
+              <li>Optimasi algoritma klasifikasi</li>
+              <li>Pemrosesan data real-time</li>
+              <li>Integrasi model ML dengan sistem</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const sidebar = document.getElementById("sidebar");
+        const sidebarToggle = document.getElementById("sidebarToggle");
+        const mainContent = document.getElementById("mainContent");
+        const overlay = document.getElementById("overlay");
+        const berandaMenu = document.getElementById("berandaMenu");
+        const databaseMenu = document.getElementById("databaseMenu");
+
+        // Fungsi untuk mengecek ukuran layar dan menyesuaikan sidebar
+        function checkScreenSize() {
+          if (window.innerWidth <= 768) {
+            sidebar.classList.add("closed");
+            mainContent.classList.add("expanded");
+          } else {
+            sidebar.classList.remove("closed");
+            mainContent.classList.remove("expanded");
+          }
+        }
+
+        // Inisialisasi awal
+        checkScreenSize();
+
+        // Toggle sidebar
+        function toggleSidebar() {
+          sidebar.classList.toggle("closed");
+          sidebar.classList.toggle("open");
+          mainContent.classList.toggle("expanded");
+          overlay.classList.toggle("active");
+        }
+
+        sidebarToggle.addEventListener("click", toggleSidebar);
+
+        // Close sidebar
+        function closeSidebarFunc() {
+          sidebar.classList.add("closed");
+          sidebar.classList.remove("open");
+          mainContent.classList.add("expanded");
+          overlay.classList.remove("active");
+        }
+
+        overlay.addEventListener("click", closeSidebarFunc);
+
+        // Navigasi ke halaman lain
+        berandaMenu.addEventListener("click", function() {
+          window.location.href = "https://myayyasy.github.io/porto/cdpp/";
+        });
+
+        databaseMenu.addEventListener("click", function() {
+          window.location.href = "https://myayyasy.github.io/porto/cdpp/history/";
+        });
+
+        // Responsive behavior
+        window.addEventListener("resize", function () {
+          checkScreenSize();
+          // Pastikan overlay tidak aktif saat resize ke desktop
+          if (window.innerWidth > 768) {
+            overlay.classList.remove("active");
+          }
+        });
+
+        // Tambahkan efek smooth scroll untuk menu item
+        document.querySelectorAll(".menu-item").forEach((item) => {
+          if (!item.id) { // Hanya untuk menu yang tidak memiliki fungsi navigasi khusus
+            item.addEventListener("click", function () {
+              // Simulasi navigasi
+              if (window.innerWidth <= 768) {
+                closeSidebarFunc();
+              }
+            });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
